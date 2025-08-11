@@ -1,0 +1,97 @@
+\
+{% extends "base.html" %}
+{% block title %}Employee Detail{% endblock %}
+{% block content %}
+<h1 class="h4 mb-3">{{ user.name }} — Detail</h1>
+
+<form class="row g-3 mb-3" method="get">
+  <div class="col-md-3">
+    <label class="form-label">Start date</label>
+    <input type="date" class="form-control" name="start" value="{{ start }}">
+  </div>
+  <div class="col-md-3">
+    <label class="form-label">End date</label>
+    <input type="date" class="form-control" name="end" value="{{ end }}">
+  </div>
+  <div class="col-md-2 align-self-end">
+    <button class="btn btn-primary w-100">Filter</button>
+  </div>
+</form>
+
+<div class="row g-3">
+  <div class="col-md-3">
+    <div class="card shadow-sm">
+      <div class="card-body">
+        <div class="text-muted">Total Leads (excl. fake)</div>
+        <div class="fs-3 fw-bold">{{ totals.total }}</div>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-3">
+    <div class="card shadow-sm">
+      <div class="card-body">
+        <div class="text-muted">Reserved</div>
+        <div class="fs-3 fw-bold">{{ totals.reserved }}</div>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-3">
+    <div class="card shadow-sm">
+      <div class="card-body">
+        <div class="text-muted">Fake Leads</div>
+        <div class="fs-3 fw-bold">{{ totals.fake }}</div>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-3">
+    <div class="card shadow-sm">
+      <div class="card-body">
+        <div class="text-muted">Conversion %</div>
+        <div class="fs-3 fw-bold">{{ totals.conv }}%</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="row g-3 mt-1">
+  <div class="col-md-6">
+    <div class="card shadow-sm">
+      <div class="card-body">
+        <h2 class="h6">Leads by Category</h2>
+        <canvas id="catTotals"></canvas>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-6">
+    <div class="card shadow-sm">
+      <div class="card-body">
+        <h2 class="h6">Reserved vs Not Reserved</h2>
+        <canvas id="catReserve"></canvas>
+      </div>
+    </div>
+  </div>
+</div>
+
+{% endblock %}
+{% block scripts %}
+<script>
+const catLabels = {{ cat_labels|tojson }};
+const catTotals = {{ cat_totals|tojson }};
+const catReserved = {{ cat_reserved|tojson }};
+const catNotReserved = {{ cat_not_reserved|tojson }};
+
+new Chart(document.getElementById('catTotals'), {
+  type: 'bar',
+  data: { labels: catLabels, datasets: [{label:'Total Leads', data: catTotals}] },
+  options: { responsive:true }
+});
+new Chart(document.getElementById('catReserve'), {
+  type: 'bar',
+  data: { labels: catLabels, datasets: [
+    {label:'Reserved', data: catReserved},
+    {label:'Not Reserved', data: catNotReserved}
+  ]},
+  options: { responsive:true, scales:{ x:{ stacked:true }, y:{ stacked:true } } }
+});
+</script>
+{% endblock %}

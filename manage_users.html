@@ -1,0 +1,57 @@
+\
+{% extends "base.html" %}
+{% block title %}Manage Users{% endblock %}
+{% block content %}
+<h1 class="h4 mb-3">Users</h1>
+
+<div class="card shadow-sm mb-3">
+  <div class="card-body">
+    <h2 class="h6">Add User</h2>
+    <form method="post" class="row g-2">
+      <input type="hidden" name="action" value="add">
+      <div class="col-md-3"><input class="form-control" name="name" placeholder="Full name" required></div>
+      <div class="col-md-3"><input class="form-control" name="email" placeholder="email@company.com" required></div>
+      <div class="col-md-2"><input class="form-control" name="region" placeholder="Region"></div>
+      <div class="col-md-2">
+        <select class="form-select" name="role">
+          <option value="employee">Employee</option>
+          <option value="manager">Manager</option>
+        </select>
+      </div>
+      <div class="col-md-2"><input class="form-control" name="password" placeholder="Temp password" required></div>
+      <div class="col-md-12 d-grid mt-2"><button class="btn btn-primary">Create</button></div>
+    </form>
+  </div>
+</div>
+
+<div class="card shadow-sm">
+  <div class="card-body">
+    <div class="table-responsive">
+      <table class="table table-striped align-middle">
+        <thead>
+          <tr><th>Name</th><th>Email</th><th>Region</th><th>Role</th><th>Status</th><th>Reset Password</th></tr>
+        </thead>
+        <tbody>
+          {% for u in users %}
+          <tr>
+            <td>{{ u.name }}</td>
+            <td>{{ u.email }}</td>
+            <td>{{ u.region }}</td>
+            <td><span class="badge text-bg-{{ 'primary' if u.role=='manager' else 'secondary' }}">{{ u.role }}</span></td>
+            <td>{{ 'Active' if u.is_active_user else 'Inactive' }}</td>
+            <td>
+              <form method="post" class="d-flex gap-2">
+                <input type="hidden" name="action" value="reset">
+                <input type="hidden" name="user_id" value="{{ u.id }}">
+                <input class="form-control form-control-sm" name="new_password" placeholder="New password" required>
+                <button class="btn btn-outline-secondary btn-sm">Reset</button>
+              </form>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+{% endblock %}

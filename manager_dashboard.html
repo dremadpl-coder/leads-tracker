@@ -1,0 +1,135 @@
+\
+{% extends "base.html" %}
+{% block title %}Manager Dashboard{% endblock %}
+{% block content %}
+<div class="d-flex align-items-center justify-content-between">
+  <h1 class="h4 mb-3">Manager Dashboard</h1>
+  <a class="btn btn-outline-secondary btn-sm" href="{{ url_for('export_csv', start=start, end=end) }}">Export CSV</a>
+</div>
+
+<form class="row g-3 mb-3" method="get">
+  <div class="col-md-3">
+    <label class="form-label">Start date</label>
+    <input type="date" class="form-control" name="start" value="{{ start }}">
+  </div>
+  <div class="col-md-3">
+    <label class="form-label">End date</label>
+    <input type="date" class="form-control" name="end" value="{{ end }}">
+  </div>
+  <div class="col-md-2 align-self-end">
+    <button class="btn btn-primary w-100">Filter</button>
+  </div>
+</form>
+
+<div class="row g-3">
+  <div class="col-md-3">
+    <div class="card shadow-sm">
+      <div class="card-body">
+        <div class="text-muted">Total Leads (excl. fake)</div>
+        <div class="fs-3 fw-bold">{{ totals.total }}</div>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-3">
+    <div class="card shadow-sm">
+      <div class="card-body">
+        <div class="text-muted">Reserved</div>
+        <div class="fs-3 fw-bold">{{ totals.reserved }}</div>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-3">
+    <div class="card shadow-sm">
+      <div class="card-body">
+        <div class="text-muted">Fake Leads</div>
+        <div class="fs-3 fw-bold">{{ totals.fake }}</div>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-3">
+    <div class="card shadow-sm">
+      <div class="card-body">
+        <div class="text-muted">Conversion %</div>
+        <div class="fs-3 fw-bold">{{ totals.conv }}%</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="row g-3 mt-1">
+  <div class="col-md-6">
+    <div class="card shadow-sm">
+      <div class="card-body">
+        <h2 class="h6">Leads by Category</h2>
+        <canvas id="catTotals"></canvas>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-6">
+    <div class="card shadow-sm">
+      <div class="card-body">
+        <h2 class="h6">Reserved vs Not Reserved</h2>
+        <canvas id="catReserve"></canvas>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="card shadow-sm mt-3">
+  <div class="card-body">
+    <h2 class="h6 mb-3">Employees</h2>
+    <div class="table-responsive">
+      <table class="table table-striped align-middle">
+        <thead>
+          <tr>
+            <th>Name</th><th>Region</th><th>Total</th><th>Reserved</th><th>Not Reserved</th><th>Fake</th><th>Conversion %</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for row in users_table %}
+          <tr>
+            <td><a href="{{ url_for('employee_detail', user_id=row.id, start=start, end=end) }}">{{ row.name }}</a></td>
+            <td>{{ row.region }}</td>
+            <td>{{ row.total }}</td>
+            <td>{{ row.reserved }}</td>
+            <td>{{ row.not_reserved }}</td>
+            <td>{{ row.fake }}</td>
+            <td>{{ row.conversion }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+const catLabels = {{ cat_labels|tojson }};
+const catTotals = {{ cat_totals|tojson }};
+const catReserved = {{ cat_reserved|tojson }};
+const catNotReserved = {{ cat_not_reserved|tojson }};
+
+new Chart(document.getElementById('catTotals'), {
+  type: 'bar',
+  data: {
+    labels: catLabels,
+    datasets: [{label:'Total Leads', data: catTotals}]
+  },
+  options: { responsive:true }
+});
+
+new Chart(document.getElementById('catReserve'), {
+  type: 'bar',
+  data: {
+    labels: catLabels,
+    datasets: [
+      {label:'Reserved', data: catReserved},
+      {label:'Not Reserved', data: catNotReserved}
+    ]
+  },
+  options: { responsive:true, scales:{ x:{ stacked:true }, y:{ stacked:true } } }
+});
+</script>
+{% endblock %}

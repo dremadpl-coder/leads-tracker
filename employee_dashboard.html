@@ -1,0 +1,81 @@
+\
+{% extends "base.html" %}
+{% block title %}My Daily Report{% endblock %}
+{% block content %}
+<h1 class="h4 mb-3">Submit Daily Lead Report</h1>
+<form method="post">
+  {{ form.hidden_tag() }}
+  <div class="row g-3">
+    <div class="col-md-3">
+      {{ form.entry_date.label(class="form-label") }}
+      {{ form.entry_date(class="form-control") }}
+    </div>
+  </div>
+
+  <div class="row g-3 mt-1">
+    <div class="col-md-12"><h2 class="h6 text-muted">By Category</h2></div>
+
+    {% macro cat_row(title, t, r, n) -%}
+    <div class="col-md-12">
+      <div class="card card-body shadow-sm">
+        <div class="row g-3 align-items-end">
+          <div class="col-md-3"><label class="form-label">{{ title }} total</label>{{ t(class="form-control", min=0) }}</div>
+          <div class="col-md-3"><label class="form-label">{{ title }} reserved</label>{{ r(class="form-control", min=0) }}</div>
+          <div class="col-md-3"><label class="form-label">{{ title }} not reserved</label>{{ n(class="form-control", min=0) }}</div>
+        </div>
+      </div>
+    </div>
+    {%- endmacro %}
+
+    {{ cat_row("Implants", form.implants_total, form.implants_reserved, form.implants_not_reserved) }}
+    {{ cat_row("Ortho", form.ortho_total, form.ortho_reserved, form.ortho_not_reserved) }}
+    {{ cat_row("Resto+Endo", form.resto_total, form.resto_reserved, form.resto_not_reserved) }}
+    {{ cat_row("Scaling", form.scaling_total, form.scaling_reserved, form.scaling_not_reserved) }}
+    {{ cat_row("Veneers", form.veneers_total, form.veneers_reserved, form.veneers_not_reserved) }}
+
+    <div class="col-md-12">
+      <div class="card card-body shadow-sm">
+        <div class="row g-3 align-items-end">
+          <div class="col-md-3">
+            {{ form.fake_count.label(class="form-label") }}
+            {{ form.fake_count(class="form-control", min=0) }}
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-md-12">
+      {{ form.notes.label(class="form-label") }}
+      {{ form.notes(class="form-control", rows=3, placeholder="Optional notes...") }}
+    </div>
+  </div>
+  <div class="mt-3 d-grid">
+    {{ form.submit(class="btn btn-primary btn-lg") }}
+  </div>
+</form>
+
+{% if recent %}
+<hr class="my-4">
+<h2 class="h5">Recent submissions</h2>
+<table class="table table-sm table-striped align-middle">
+  <thead>
+    <tr>
+      <th>Date</th><th>Category</th><th>Total</th><th>Reserved</th><th>Not Reserved</th><th>Fake</th><th>Notes</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for e in recent %}
+    <tr>
+      <td>{{ e.entry_date }}</td>
+      <td>{{ labels[e.category] }}</td>
+      <td>{{ e.total }}</td>
+      <td>{{ e.reserved }}</td>
+      <td>{{ e.not_reserved }}</td>
+      <td>{{ e.fake_count }}</td>
+      <td class="text-truncate" style="max-width: 300px;">{{ e.notes }}</td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% endif %}
+{% endblock %}
